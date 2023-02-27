@@ -1,0 +1,16 @@
+entrypoint = "index.js"
+
+hidden = [".config", "package-lock.json", "core_server"]
+
+run = "npm run serve"
+
+[packager]
+language = "nodejs"
+
+  [packager.features]
+  packageSearch = true
+  guessImports = true
+  enabledForHosting = false
+
+[nix]
+channel = "stable-22_11"
