@@ -5,5 +5,5 @@
   "content-security-policy": {
     "default-src": ["self"]
   },
-  "extentions": ["replitdb"]
+  "extentions": []
 }

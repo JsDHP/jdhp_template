@@ -38,6 +38,7 @@ cast({
   "content-security-policy": {
     "default": ['self']
   },
+  "extentions": []
 })
 
 const app = express();
