@@ -33,8 +33,14 @@ function collaspe(dir, collasped, slice, hidden) {
 
   return collasped
 }
-const defaultHidden = (JSON.parse(fs.readFileSync('.replit').toString().match(/^hidden\s*?=\s*?(\[.*?\])/m)[1].replaceAll("'", '"')).concat(["node_modules", "package.json", "package-lock.json", ".upm", ".replit", "replit.nix", ".cache", "jdhp.config.json", "extentions"])).map(e=>{
-  return path.resolve(e)
+let cont = "hidden = []"
+try {
+  cont = fs.readFileSync('.replit').toString();
+} catch {
+  
+}
+const defaultHidden = (JSON.parse(cont.match(/^hidden\s*?=\s*?(\[.*?\])/m)[1].replaceAll("'", '"')).concat(["node_modules", "package.json", "package-lock.json", ".upm", ".replit", "replit.nix", ".cache", "jdhp.config.json", "extentions", ".git", "core_server", ".gitignore", ".config"])).map(e=>{
+  return path.join(process.cwd(), e)
 });
 module.exports = function (directory=process.cwd(), hidden=defaultHidden) {
   hidden = hidden.map(e=>{
