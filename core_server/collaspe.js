@@ -1,6 +1,6 @@
-const path                           = require("path");
-const fs                               = require("fs");
-const config = require(path.resolve('jdhp.config.js'));
+const path                             = require("path");
+const fs                                 = require("fs");
+const config = require(path.resolve('jdhp.config.json'));
 function collaspe(dir, collasped, slice, hidden) {
   let directory = path.resolve(dir)
   if (slice === undefined) {
