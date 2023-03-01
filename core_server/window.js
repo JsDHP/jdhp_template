@@ -35,14 +35,9 @@ function makeElement(document, name, options) {
   if (options.style) {
     if (typeof options.style !== 'string') {
       let newStyle = ''
-      Object.keys(options.style).forEach(k=>{
-        newStyle += `${k}{`
-        Object.keys(options.style[k]).forEach(p=>{
-          newStyle += `${p}:${options.style[k][p]};`
-        })
-        newStyle+='}'
+      Object.keys(options.style).forEach(p=>{
+        newStyle += `${p}:${options.style[p]};`
       })
-      options.style = newStyle
     }
   }
   if (options.children !== undefined) {
