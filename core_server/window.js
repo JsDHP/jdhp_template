@@ -38,6 +38,7 @@ function makeElement(document, name, options) {
       Object.keys(options.style).forEach(p=>{
         newStyle += `${p}:${options.style[p]};`
       })
+      options.style = newStyle
     }
   }
   if (options.children !== undefined) {
@@ -84,7 +85,8 @@ function urlResolve(...args) {
   return curr
 }
 
-function makeWindow(path, content='<!DOCTYPE html><html lang="en"></html>') {
+function makeWindow(api, content='<!DOCTYPE html><html lang="en"></html>') {
+  let { path } = api;
   let dom = new JSDOM(content)
   let document = dom.window.document;
   let scriptHead = document.createElement('script');
@@ -103,9 +105,12 @@ function makeWindow(path, content='<!DOCTYPE html><html lang="en"></html>') {
     target.innerHTML+=`(${func.toString()})(${args.map(e=>JSON.stringify(e)).join(',')});`
   }
 
+  let styles = [];
+
   document.inlineCss = function (css) {
-    document.head.add('style', {
-      HTML: css
+    document.head.add('link', {
+      rel: "stylesheet",
+      href: api.mkStyle(css)
     })
   }
 
@@ -131,7 +136,7 @@ function makeWindow(path, content='<!DOCTYPE html><html lang="en"></html>') {
     document.head.appendChild(scriptHead)
     document.body.appendChild(scriptBody)
 
-    callback(scriptHead, scriptBody)
+    callback(scriptHead, scriptBody, ...styles)
 
     return dom.serialize()
   }

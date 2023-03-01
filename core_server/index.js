@@ -43,6 +43,16 @@ cast({
 
 const app = express();
 app.use(cookieParser())
+let styleDAT = [];
+
+app.get('/core_server/style/:style', function (req, res) {
+  res.type('text/css');
+  res.send(styleDAT[req.params.style] || '')
+})
+
+function mkStyle(style) {
+  return `/core_server/style/${styleDAT.push(style)-1}`;
+}
 
 function toCSPString(obj) {
   if (obj === false) {
@@ -74,8 +84,10 @@ function registerJS(path, callback) {
         let usedSend = '';
         let baseCSP = JSON.parse(JSON.stringify(config["content-security-policy"]));
         
-        baseCSP['script-src'] = baseCSP['script-src'] || [];
-        baseCSP['script-src'].push(`'nonce-${nonce}'`)
+        if (baseCSP !== false) {
+          baseCSP['script-src'] = baseCSP['script-src'] || [];
+          baseCSP['script-src'].push(`'nonce-${nonce}'`)
+        }
         
         let CSP = toCSPString(baseCSP);
         
@@ -97,7 +109,10 @@ function registerJS(path, callback) {
             if (usedSend) {
               throw Error("Cannot combine createDocument and response.write().")
             }
-            createdDocument = makeWindow(path, startingContent);
+            createdDocument = makeWindow({ 
+              path,
+              mkStyle: mkStyle
+            }, startingContent);
             return createdDocument
           },
           console: fileConsole,
@@ -179,6 +194,9 @@ function registerJS(path, callback) {
               }
         
               let data = createdDocument[makeWindow.finishSymbol](function (...args) {
+                if (CSP === false) {
+                  return
+                }
                 args.forEach(script=>{
                   script.setAttribute('nonce', nonce)
                 })
@@ -226,7 +244,8 @@ function serve(contentType, path, content) {
   });
 }
 
-Object.entries(collaspe('extentions')).forEach(([ file, content ])=>{
+Object.entries(collaspe('extensions')).forEach(([ file, content ])=>{
+  console.log(file.endsWith('.js'))
   if (!file.endsWith('.js')) {
     return
   }
@@ -249,7 +268,9 @@ Object.entries(collaspe('extentions')).forEach(([ file, content ])=>{
     console: new Proxy(console,{get:function(console, name){if(console[name]===undefined){return}return function (...args) {
       process.stdout.write(`EXT ${file}: `)
       console[name](...args)
-    }}})
+    }}}),
+
+    require: require
   }))
 })
 
