@@ -1,15 +1,6 @@
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
-/*let Document = (new JSDOM('')).window.document.__proto__.__proto__;
-class MyDocument extends Document {
-  #scriptHead;
-  #scriptBody
-  constructor(...args) {
-    super(...args)
-    this.
-  }
-}
-(new JSDOM('')).window.document.__proto__ = MyDocument*/
+
 function fetchWindowProp(p) {
   return (new JSDOM('', {
     runScripts: 'outside-only'
@@ -108,9 +99,8 @@ function makeWindow(api, content='<!DOCTYPE html><html lang="en"></html>') {
   let styles = [];
 
   document.inlineCss = function (css) {
-    document.head.add('link', {
-      rel: "stylesheet",
-      href: api.mkStyle(css)
+    document.head.add('style', {
+      HTML: css
     })
   }
 
