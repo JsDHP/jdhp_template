@@ -39,7 +39,7 @@ try {
 } catch {
   
 }
-const defaultHidden = (JSON.parse(cont.match(/^hidden\s*?=\s*?(\[.*?\])/m)[1].replaceAll("'", '"')).concat(["node_modules", "package.json", "package-lock.json", ".upm", ".replit", "replit.nix", ".cache", "jdhp.config.json", "extentions", ".git", "core_server", ".gitignore", ".config"])).map(e=>{
+const defaultHidden = (JSON.parse(cont.match(/^hidden\s*?=\s*?(\[.*?\])/m)[1].replaceAll("'", '"')).concat(["node_modules", "package.json", "package-lock.json", ".upm", ".replit", "replit.nix", ".cache", "jdhp.config.json", "extensions", ".git", "core_server", ".gitignore", ".config"])).map(e=>{
   return path.join(process.cwd(), e)
 });
 module.exports = function (directory=process.cwd(), hidden=defaultHidden) {
