@@ -45,15 +45,6 @@ const app = express();
 app.use(cookieParser())
 let styleDAT = [];
 
-app.get('/core_server/style/:style', function (req, res) {
-  res.type('text/css');
-  res.send(styleDAT[req.params.style] || '')
-})
-
-function mkStyle(style) {
-  return `/core_server/style/${styleDAT.push(style)-1}`;
-}
-
 function toCSPString(obj) {
   if (obj === false) {
     return false
@@ -87,6 +78,9 @@ function registerJS(path, callback) {
         if (baseCSP !== false) {
           baseCSP['script-src'] = baseCSP['script-src'] || [];
           baseCSP['script-src'].push(`'nonce-${nonce}'`)
+
+          baseCSP['script-src'] = baseCSP['script-src'] || [];
+          baseCSP['script-src'].push(`'unsafe-inline'`)
         }
         
         let CSP = toCSPString(baseCSP);
@@ -111,7 +105,6 @@ function registerJS(path, callback) {
             }
             createdDocument = makeWindow({ 
               path,
-              mkStyle: mkStyle
             }, startingContent);
             return createdDocument
           },
@@ -243,13 +236,19 @@ function serve(contentType, path, content) {
     res.send(content);
   });
 }
-
+let k = []
 Object.entries(collaspe('extensions')).forEach(([ file, content ])=>{
-  console.log(file.endsWith('.js'))
   if (!file.endsWith('.js')) {
     return
   }
   let fileContent = content.toString();
+  if (file.startsWith('installed/')) {
+    k.unshift([file, fileContent])
+  } else {
+    k.push([file, fileContent])
+  }
+})
+k.forEach(([file, fileContent])=>{
   vm.runInContext(fileContent, vm.createContext({
     server: {
       serveJS: registerJS,
@@ -270,10 +269,12 @@ Object.entries(collaspe('extensions')).forEach(([ file, content ])=>{
       console[name](...args)
     }}}),
 
-    require: require
+    require: require,
+    process: process,
+
+    __dirname: path.resolve('extensions')
   }))
 })
-
 Object.entries(collaspe()).forEach(([ file, content ])=>{
   console.log("Loading", file)
   if (file.endsWith('.js')) {
